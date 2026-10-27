@@ -8,10 +8,12 @@ kernel BUG in assfail (fs/xfs/xfs_message.c:102)
 
 ## Status
 
-- Trigger: executing the stored syzkaller testcases
-  (`repro/repro.kernsight.prog` then `repro/repro.prog`) on
-  Linux 7.3.0-kernsight-kasan triggers the assertion in `xfs_log_mount()`.
-- Reproduction count: 1/1 on a fresh VM.
+- Trigger: executing the state-construction recipe
+  `repro/repro.kernsight.prog` alone on Linux 7.3.0-kernsight-kasan triggers
+  the assertion in `xfs_log_mount()` at 162.26 s. The smaller
+  `repro/repro.prog` is not needed.
+- Reproduction count: one crash observed in one fresh-VM validation run
+  (2026-10-28; `7.3/validation-run-20261028/`).
 - Taint: Not tainted.
 - The failing check is the log size check
   (`XFS (loop0): AAIEEE! Log failed size checks. Abort!`), followed by
@@ -25,7 +27,7 @@ kernel BUG in assfail (fs/xfs/xfs_message.c:102)
 
 ```
 repro/repro.kernsight.prog   state-construction recipe (~2.6 MB)
-repro/repro.prog             crashing testcase (~24 KB; image embedded)
+repro/repro.prog             small testcase (~24 KB; NOT needed for the trigger)
 7.3/serial-7.3-20261024.log  full boot-to-crash serial log
 7.3/crash-excerpt-7.3-20261024.txt
 7.3/console-7.3-20261024.log
@@ -42,14 +44,13 @@ reproduce.sh, verify.sh, MANIFEST.sha256
 ./reproduce.sh
 ```
 
-Manual form (same VM; run the recipe first, then the testcase):
+Manual form (run the recipe alone on a fresh VM):
 
 ```
-scp syz-execprog syz-executor repro/repro.kernsight.prog repro/repro.prog root@guest:/tmp/
+scp syz-execprog syz-executor repro/repro.kernsight.prog root@guest:/tmp/
 ssh root@guest
 cd /tmp && chmod +x syz-execprog syz-executor
 ./syz-execprog -procs=1 -repeat=1 -disable=swap -executor ./syz-executor ./repro.kernsight.prog
-./syz-execprog -procs=1 -repeat=1 -disable=swap -executor ./syz-executor ./repro.prog
 ```
 
 ## Observed on 7.3.0
