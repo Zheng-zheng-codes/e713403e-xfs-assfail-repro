@@ -1,0 +1,7 @@
+# e713403e7da73d6f8c97944c14d00ebfc6a5d7ac
+
+- 标题: kernel BUG in assfail
+- 复现器: repro.kernsight.prog
+- 7.3 执行: YES
+- 判定依据: class=kernel BUG sym=assfail
+- 耗时: 466s
